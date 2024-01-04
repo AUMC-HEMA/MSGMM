@@ -28,11 +28,6 @@ arma::vec getClusters(arma::mat X, arma::vec weights, arma::mat Mean, arma::mat 
       
       arma::colvec M = arma::trans(Mean.row(k));
       
-      //y = arma::trans(y);
-      //float DET = arma::det(S);
-      //unsigned int p = S.n_cols;
-      //float NORM = std::pow(std::sqrt(2 * arma::datum::pi),p) * std::sqrt(DET);
-      
       arma::mat inverse =  INV.submat(k*p,0,k*p + (p-1),p-1);
       arma::mat MAH = arma::trans(y - M) * inverse * (y - M);
       float normalization = NORM[k];
