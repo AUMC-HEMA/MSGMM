@@ -14,6 +14,8 @@ Philip Rutten, Tim Robert Mocking, Jacqueline Cloos, Wessel van Wieringen, Costa
 
 MSGMM is not an R package.
 Store the msgmm.R file in the same directory as your R script (or specify the full path name).
+The msgmm.R file in turn includes C++ code from external files using the ```sourceCpp("...")``` function.
+Make sure that the filename inside sourceCpp() has the right path, and the C++ files are stored in the corresponding location.
 Source the R script:
 
 \> source("msgmm.R")
