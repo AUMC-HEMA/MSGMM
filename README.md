@@ -21,5 +21,5 @@ Source the R script:
 The main funtion ```fitMSGMM()``` fits a GMM to multiple samples, using the EM algorithm, and returns estimated model parameters. 
 fitMSGMM iterates data files multiple times and at each iteration opens and closes them sequentially. 
 Files should be preprocessed and in CSV format. 
-See the reference manual for detailed information.
+See the reference manual for detailed usage information.
 
