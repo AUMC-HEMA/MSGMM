@@ -2,7 +2,7 @@
 
 R software scripts for fitting Gaussian mixture models to multiple data samples simultaneously, using the EM algorithm.
 It makes use of C++ code via the R package **Rcpp**.
-MSGMM also takes advantage of the open source C++ linear algebra library `Armadillo' via the R package **RcppArmadillo**.
+MSGMM also takes advantage of the open source C++ linear algebra library 'Armadillo' via the R package **RcppArmadillo**.
 MSGMM also uses the **data.table** package.
 These packages need to be installed first in order to use MSGMM.
 
