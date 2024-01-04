@@ -41,7 +41,6 @@ double getLoglike(arma::mat X, arma::vec weights, arma::mat Mean, arma::mat Sigm
       
       double lognorm = -0.5*quadform + logSqrtDetvarcovM[k] + constant;
       
-      
       if (k<1) {
         a = log(weights[k]) + lognorm;
         logprobs[k] = a;
