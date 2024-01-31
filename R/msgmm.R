@@ -71,7 +71,7 @@ fitMSGMM <- function(samplefiles,
   
   if (pooled==TRUE){
     
-    weights <- rep(1/K, length(patients), K)
+    weights <- rep(1/K, length(samplefiles), K)
     
     while (convergence > convergence_threshold) {
       cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
@@ -133,7 +133,7 @@ fitMSGMM <- function(samplefiles,
     
   } else {
     
-    weights <- matrix(1/K, length(patients), K)
+    weights <- matrix(1/K, length(samplefiles), K)
     
     while (convergence > convergence_threshold) {
       
