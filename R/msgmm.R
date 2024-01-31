@@ -140,7 +140,7 @@ fitMSGMM <- function(samplefiles,
       cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
       
       # Accumulators
-      A0 <- matrix(0, length(patients), K) # rep(0,K)
+      A0 <- matrix(0, length(samplefiles), K) # rep(0,K)
       A1 <- matrix(0, K, p)
       A2 <- matrix(0, K*p, p) 
       
