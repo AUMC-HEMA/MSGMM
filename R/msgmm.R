@@ -204,7 +204,7 @@ predictLabels <- function(X, weights, means, covariances){
     }
   }
   
-  dataClusters <- getClusters(X, weights, means, Sigmas)
+  dataClusters <- getClusters(X, weights, means, covariances)
   
   return(dataClusters)
 }
@@ -228,9 +228,34 @@ getLoglikelihood <- function(samplefiles, usecols, weights, means, covariances){
     Y1 <- fread(file=fcsFile)
     Y1 <- as.matrix(Y1)[,usecols]
     
-    logL <- logL + getLoglike(Y1, weights, means, Sigmas)
+    logL <- logL + getLoglike(Y1, weights, means, covariances)
   }
   
   return(logL)
+}
+
+################################################################################
+
+getLoglikelihoodValues <- function(samplefiles, usecols=NULL, weights, means, covariances){
+  
+  M <- length(samplefiles)
+  
+  if (is.null(usecols)){
+    p <- ncol(fread(file=samplefiles[1]))
+    usecols<-1:p
+  } 
+  
+  logLvalues <- c()
+  
+  for (s in 1:M) {
+    fcsFile <- samplefiles[s]
+    cat("Analysing",fcsFile,"\n")
+    Y1 <- fread(file=fcsFile)
+    Y1 <- as.matrix(Y1)[,usecols]
+    
+    logLvalues <- c(logLvalues,getLoglikeVals(Y1, weights, means, covariances))
+  }
+  
+  return(logLvalues)
 }
 
