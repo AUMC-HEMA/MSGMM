@@ -211,7 +211,7 @@ predictLabels <- function(X, weights, means, covariances){
 
 ################################################################################
 
-getLoglikelihood <- function(samplefiles, usecols, weights, means, covariances){
+getLoglikelihood <- function(samplefiles, usecols=NULL, weights, means, covariances){
   
   M <- length(samplefiles)
   
