@@ -33,7 +33,6 @@ fitMSGMM <- function(samplefiles,
   if (is.null(init_means)){
     
     # Create subsample
-    # Actually all data pooled
     
     Msub <- subsamples
     
