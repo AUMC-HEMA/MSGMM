@@ -9,6 +9,7 @@ sourceCpp("loglikelihood.cpp")
 fitMSGMM <- function(samplefiles, 
                      K, 
                      usecols=NULL,
+                     init_means=NULL,
                      subsamples=50,
                      init_size=1e4,
                      convergence_threshold=1e-3,
@@ -25,42 +26,50 @@ fitMSGMM <- function(samplefiles,
   } else {
     p <- length(usecols)
   }
-  
-  ##############################################################################
-  # Create subsample
-  # Actually all data pooled
-  
-  Msub <- subsamples
-  
-  if (length(samplefiles) < Msub){
-    Msub <- length(samplefiles)
-  }
-  
-  subsample <- matrix(NA, Msub * init_size, p)
-  
-  cat("Model",K,"start building subsample from",Msub,"out of",M,"samples.","\n")
-  
-  for (s in 1:Msub) {
-    fcsFile <- samplefiles[s]
-    Y1 <- fread(file=fcsFile)
-    Y1 <- as.matrix(Y1)[,usecols]
-    
-    a <- (s - 1) * init_size + 1
-    b <- a + init_size - 1
-    
-    if (nrow(Y1) > init_size){
-      subsample[a:b,] <- Y1[sample(nrow(Y1), init_size, replace=FALSE),]
-    } else {
-      subsample[a:b,] <- Y1[sample(nrow(Y1), init_size, replace=TRUE),]
-    }
-  }
-  
-  cat("Subsample size:",Msub * init_size,'\n')
-  
+
   ##############################################################################
   # Initialize parameters
+
+  if (is.null(init_means)){
+    
+    # Create subsample
+    # Actually all data pooled
+    
+    Msub <- subsamples
+    
+    if (length(samplefiles) < Msub){
+      Msub <- length(samplefiles)
+    }
+    
+    subsample <- matrix(NA, Msub * init_size, p)
+    
+    cat("Model",K,"start building subsample from",Msub,"out of",M,"samples.","\n")
+    
+    for (s in 1:Msub) {
+      fcsFile <- samplefiles[s]
+      Y1 <- fread(file=fcsFile)
+      Y1 <- as.matrix(Y1)[,usecols]
+      
+      a <- (s - 1) * init_size + 1
+      b <- a + init_size - 1
+      
+      if (nrow(Y1) > init_size){
+        subsample[a:b,] <- Y1[sample(nrow(Y1), init_size, replace=FALSE),]
+      } else {
+        subsample[a:b,] <- Y1[sample(nrow(Y1), init_size, replace=TRUE),]
+      }
+    }
+    
+    cat("Subsample size:",Msub * init_size,'\n')
+
+    means <- kmeans(subsample, K, iter.max=1000, algorithm="MacQueen")$centers
+    
+  } else {
+    means <- init_means
+  }
   
-  means <- kmeans(subsample, K, iter.max=1000, algorithm="MacQueen")$centers
+  ##############################################################################
+  
   Sigmas <- t(matrix(rep(diag(p)*100, K), p, K*p))*gamma**2
   
   convergence <- 1
