@@ -4,7 +4,7 @@ library(ellipse)
 ################################################################################
 # Demonstration of MSGMM analysis on simulated sample files
 
-setwd("/Users/philip/Documents/postdoc/vumc/code/Rcpp/test")
+# setwd("...")
 source("msgmm.R")
 
 ################################################################################
