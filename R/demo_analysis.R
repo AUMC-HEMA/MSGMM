@@ -22,11 +22,11 @@ S <- 4 # number of samples
 pimatrix <- matrix(c(0.3, 0.3, 0.3, 0.2,
                      0.3, 0.3, 0.3, 0.2,
                      0.3, 0.3, 0.3, 0.2,
-                     0.1, 0.1, 0.1, 0.4),4,4)
+                     0.1, 0.1, 0.1, 0.4), 4, 4)
 
-means <- matrix(c(1,1,-1,-1,1,-1,-1,1),4,2)
+means <- matrix(c(1,1,-1,-1,1,-1,-1,1), 4, 2)
 
-covariances <- matrix(c(1,0,1,0,1,0,1,0,0,1,0,1,0,1,0,1)*0.1,8,2)
+covariances <- matrix(c(1,0,1,0,1,0,1,0,0,1,0,1,0,1,0,1)*0.1, 8, 2)
 
 for (s in 1:S) {
   clusterlabels <- sample(K, 1000, replace = TRUE, pimatrix[s,])
