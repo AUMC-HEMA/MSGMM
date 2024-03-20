@@ -21,6 +21,8 @@ Source the R script:
 The msgmm.R file in turn includes C++ code from external C++ files in a similar fashion using the ```sourceCpp("...")``` function.
 Store the C++ files called inside sourceCpp() in the same directory as the msgmm.R script, or specify the full path name.
 
+See a demonstration of MSGMM analysis on simulated sample files in the demo_analysis.R script.
+
 The main function ```fitMSGMM()``` fits a GMM to multiple samples, using the EM algorithm, and returns estimated model parameters. 
 fitMSGMM iterates data files multiple times and at each iteration opens and closes them sequentially. 
 Files should be preprocessed and in CSV format. 
