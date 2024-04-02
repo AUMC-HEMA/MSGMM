@@ -6,7 +6,7 @@ MSGMM also takes advantage of the open source C++ linear algebra library 'Armadi
 MSGMM also uses the **data.table** package.
 These packages need to be installed first in order to use MSGMM.
 
-The method implemented in MSGMM is detailed in: *"Computationally efficient multi-sample flow cytometry data analysis using Gaussian mixture models"*
+The method implemented in MSGMM is detailed in: *Computationally efficient multi-sample flow cytometry data analysis using Gaussian mixture models*
 
 Philip Rutten, Tim Robert Mocking, Jacqueline Cloos, Wessel van Wieringen, Costa Bachas
 
