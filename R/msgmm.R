@@ -26,6 +26,24 @@ getSubsample <- function(files, K, usecols, init.files, init.size, seed){
 }
 
 
+#' Fit multi-sample Gaussian Mixture Model (MSGMM)
+#' 
+#' @param files Character vector with CSV filenames
+#' @param K Integer specifying number of Gaussian components
+#' @param usecols Vector specifying the variables (columns) to use
+#' @param init.means Initial values of means. (K-means used if not specified)
+#' @param init.files Number of files to use for means initialization
+#' @param init.size Number of data points to sample from each file for means initialization 
+#' @param seed Random seed for subsampling during means initialization 
+#' @param tol Convergence threshold for stopping criterion 
+#' @param max.iter Maximum number of EM iterations
+#' @param gamma Starting value of component variance matrices 
+#' @param lambda Regularization parameter for component covariance estimation 
+#' @param pooled Logical flag to enable/disable multi-sample EM algorithm
+#'
+#' @return List of model parameters ("weights", "means", and "covariances")
+#'
+#' @export
 fitMSGMM <- function(files, 
                      K, 
                      usecols=NULL,
