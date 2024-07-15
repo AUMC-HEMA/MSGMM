@@ -1,12 +1,11 @@
 getSubsample <- function(files, K, usecols, init.files, init.size){
-  # Create subsample
-  Msub <- init.files
-  if (length(files) < Msub){
-    Msub <- length(files)
+  if (length(files) < init.files){
+    cat("init.files is smaller than input files, setting equal to input files")
+    init.files <- length(files)
   }
-  subsample <- matrix(NA, Msub * init.size, p)
-  cat("Model",K,"start building subsample from",Msub,"out of",length(files),"samples.","\n")
-  for (s in 1:Msub) {
+  subsample <- matrix(NA, init.files * init.size, p)
+  cat("Model",K,"start building subsample from",init.files,"out of",length(files),"samples.","\n")
+  for (s in 1:init.files) {
     Y1 <- data.table::fread(file=files[s])
     Y1 <- as.matrix(Y1)[,usecols]
     a <- (s - 1) * init.size + 1
@@ -17,7 +16,7 @@ getSubsample <- function(files, K, usecols, init.files, init.size){
       subsample[a:b,] <- Y1[sample(nrow(Y1), init.size, replace=TRUE),]
     }
   }
-  cat("Subsample size:",Msub * init.size,'\n')
+  cat("Subsample size:",init.files * init.size,'\n')
   return(subsample)
 }
 
