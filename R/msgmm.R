@@ -1,3 +1,27 @@
+getSubsample <- function(files, K, usecols, init.files, init.size){
+  # Create subsample
+  Msub <- init.files
+  if (length(files) < Msub){
+    Msub <- length(files)
+  }
+  subsample <- matrix(NA, Msub * init.size, p)
+  cat("Model",K,"start building subsample from",Msub,"out of",length(files),"samples.","\n")
+  for (s in 1:Msub) {
+    Y1 <- data.table::fread(file=files[s])
+    Y1 <- as.matrix(Y1)[,usecols]
+    a <- (s - 1) * init.size + 1
+    b <- a + init.size - 1
+    if (nrow(Y1) > init.size){
+      subsample[a:b,] <- Y1[sample(nrow(Y1), init.size, replace=FALSE),]
+    } else {
+      subsample[a:b,] <- Y1[sample(nrow(Y1), init.size, replace=TRUE),]
+    }
+  }
+  cat("Subsample size:",Msub * init.size,'\n')
+  return(subsample)
+}
+
+
 fitMSGMM <- function(files, 
                      K, 
                      usecols=NULL,
@@ -21,35 +45,7 @@ fitMSGMM <- function(files,
   # Initialize parameters
 
   if (is.null(init.means)){
-    
-    # Create subsample
-    
-    Msub <- init.files
-    
-    if (length(files) < Msub){
-      Msub <- length(files)
-    }
-    
-    subsample <- matrix(NA, Msub * init.size, p)
-    
-    cat("Model",K,"start building subsample from",Msub,"out of",length(files),"samples.","\n")
-    
-    for (s in 1:Msub) {
-      Y1 <- data.table::fread(file=files[s])
-      Y1 <- as.matrix(Y1)[,usecols]
-      
-      a <- (s - 1) * init.size + 1
-      b <- a + init.size - 1
-      
-      if (nrow(Y1) > init.size){
-        subsample[a:b,] <- Y1[sample(nrow(Y1), init.size, replace=FALSE),]
-      } else {
-        subsample[a:b,] <- Y1[sample(nrow(Y1), init.size, replace=TRUE),]
-      }
-    }
-    
-    cat("Subsample size:",Msub * init.size,'\n')
-
+    subsample <- getSubsample(files, K, usecols, init.files, init.size)
     means <- stats::kmeans(subsample, K, iter.max=1000, algorithm="MacQueen")$centers
     
   } else {
