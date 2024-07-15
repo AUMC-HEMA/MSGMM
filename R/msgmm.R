@@ -1,4 +1,9 @@
-getSubsample <- function(files, K, usecols, init.files, init.size){
+getSubsample <- function(files, K, usecols, init.files, init.size, seed){
+
+  if(!is.null(seed)){
+    set.seed(seed)
+  }
+
   if (length(files) < init.files){
     cat("init.files is smaller than input files, setting equal to input files \n")
     init.files <- length(files)
@@ -27,6 +32,7 @@ fitMSGMM <- function(files,
                      init.means=NULL,
                      init.files=50,
                      init.size=1e4,
+                     seed=NULL,
                      tol=1e-3,
                      max.iter=50,
                      gamma=1, 
@@ -44,7 +50,7 @@ fitMSGMM <- function(files,
   # Initialize parameters
 
   if (is.null(init.means)){
-    subsample <- getSubsample(files, K, usecols, init.files, init.size)
+    subsample <- getSubsample(files, K, usecols, init.files, init.size, seed)
     means <- stats::kmeans(subsample, K, iter.max=1000, algorithm="MacQueen")$centers
     
   } else {
