@@ -9,9 +9,7 @@ fitMSGMM <- function(files,
                      gamma=1, 
                      lambda=0.01, 
                      pooled=FALSE){ 
-  
-  M <- length(files)
-  
+
   if (is.null(usecols)){
     p <- ncol(fread(file=files[1]))
     usecols<-1:p
@@ -34,7 +32,7 @@ fitMSGMM <- function(files,
     
     subsample <- matrix(NA, Msub * init.size, p)
     
-    cat("Model",K,"start building subsample from",Msub,"out of",M,"samples.","\n")
+    cat("Model",K,"start building subsample from",Msub,"out of",length(files),"samples.","\n")
     
     for (s in 1:Msub) {
       fcsFile <- files[s]
@@ -85,7 +83,7 @@ fitMSGMM <- function(files,
       
       N <- 0
       
-      for (s in 1:M) {
+      for (s in 1:length(files)) {
         fcsFile <- files[s]
         Y1 <- fread(file=fcsFile)
         Y1 <- as.matrix(Y1)[,usecols]
@@ -140,7 +138,7 @@ fitMSGMM <- function(files,
       
       logL <- 0
       
-      for (s in 1:M) {
+      for (s in 1:length(files)) {
         fcsFile <- files[s]
         Y1 <- fread(file=fcsFile)
         Y1 <- as.matrix(Y1)[,usecols] 
@@ -203,9 +201,7 @@ predictLabels <- function(X, weights, means, covariances){
 ################################################################################
 
 getLoglikelihood <- function(files, usecols=NULL, weights, means, covariances){
-  
-  M <- length(files)
-  
+
   if (is.null(usecols)){
     p <- ncol(fread(file=files[1]))
     usecols<-1:p
@@ -213,7 +209,7 @@ getLoglikelihood <- function(files, usecols=NULL, weights, means, covariances){
   
   logL <- 0
   
-  for (s in 1:M) {
+  for (s in 1:length(files)) {
     fcsFile <- files[s]
     cat("Analysing",fcsFile,"\n")
     Y1 <- fread(file=fcsFile)
@@ -228,9 +224,7 @@ getLoglikelihood <- function(files, usecols=NULL, weights, means, covariances){
 ################################################################################
 
 getLoglikelihoodValues <- function(files, usecols=NULL, weights, means, covariances){
-  
-  M <- length(files)
-  
+
   if (is.null(usecols)){
     p <- ncol(fread(file=files[1]))
     usecols<-1:p
@@ -238,7 +232,7 @@ getLoglikelihoodValues <- function(files, usecols=NULL, weights, means, covarian
   
   logLvalues <- c()
   
-  for (s in 1:M) {
+  for (s in 1:length(files)) {
     fcsFile <- files[s]
     cat("Analysing",fcsFile,"\n")
     Y1 <- fread(file=fcsFile)
