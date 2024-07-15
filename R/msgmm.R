@@ -110,11 +110,14 @@ fitMSGMM <- function(files,
         N <- N + nrow(Y1)
       }
       
-      if (iter > 1 && is.na(logL)) {
-        stop("Log-likelihood is ", logL)
+      if (iter > 1) {
+        if (is.na(logL)){
+          cat("Error: loglikelihood is",logL,'\n')
+          convergence <- 0
+        } else {
+          convergence <- abs((logL - logL_old) / logL_old)
+        }
       }
-      convergence <- abs((logL - logL_old) / logL_old)
-        
       
       logL_old <- logL
       iter <- iter + 1
@@ -165,10 +168,14 @@ fitMSGMM <- function(files,
         weights[s,] <- A0[s,] / nrow(Y1) 
       }
       
-      if (iter > 1 && is.na(logL)) {
-        stop("Log-likelihood is ", logL)
+      if (iter > 1) {
+        if (is.na(logL)){
+          cat("Error: loglikelihood is",logL,'\n')
+          convergence <- 0
+        } else {
+          convergence <- abs((logL - logL_old) / logL_old)
+        }
       }
-      convergence <- abs((logL - logL_old) / logL_old)
       
       logL_old <- logL
       iter <- iter + 1
