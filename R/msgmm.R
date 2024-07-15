@@ -1,6 +1,6 @@
 getSubsample <- function(files, K, usecols, init.files, init.size){
   if (length(files) < init.files){
-    cat("init.files is smaller than input files, setting equal to input files")
+    cat("init.files is smaller than input files, setting equal to input files \n")
     init.files <- length(files)
   }
   subsample <- matrix(NA, init.files * init.size, p)
