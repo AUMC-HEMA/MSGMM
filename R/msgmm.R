@@ -35,8 +35,7 @@ fitMSGMM <- function(files,
     cat("Model",K,"start building subsample from",Msub,"out of",length(files),"samples.","\n")
     
     for (s in 1:Msub) {
-      fcsFile <- files[s]
-      Y1 <- data.table::fread(file=fcsFile)
+      Y1 <- data.table::fread(file=files[s])
       Y1 <- as.matrix(Y1)[,usecols]
       
       a <- (s - 1) * init.size + 1
@@ -84,8 +83,7 @@ fitMSGMM <- function(files,
       N <- 0
       
       for (s in 1:length(files)) {
-        fcsFile <- files[s]
-        Y1 <- data.table::fread(file=fcsFile)
+        Y1 <- data.table::fread(file=files[s])
         Y1 <- as.matrix(Y1)[,usecols]
         
         logL <- logL + logstep(Y1, weights, means, Sigmas, A0, A1, A2)
@@ -139,8 +137,7 @@ fitMSGMM <- function(files,
       logL <- 0
       
       for (s in 1:length(files)) {
-        fcsFile <- files[s]
-        Y1 <- data.table::fread(file=fcsFile)
+        Y1 <- data.table::fread(file=files[s])
         Y1 <- as.matrix(Y1)[,usecols] 
         
         A0_ <- A0[s,]
@@ -210,9 +207,8 @@ getLoglikelihood <- function(files, usecols=NULL, weights, means, covariances){
   logL <- 0
   
   for (s in 1:length(files)) {
-    fcsFile <- files[s]
-    cat("Analysing",fcsFile,"\n")
-    Y1 <- data.table::fread(file=fcsFile)
+    cat("Analysing",files[s],"\n")
+    Y1 <- data.table::fread(file=files[s])
     Y1 <- as.matrix(Y1)[,usecols]
     
     logL <- logL + getLoglike(Y1, weights, means, covariances)
@@ -233,9 +229,8 @@ getLoglikelihoodValues <- function(files, usecols=NULL, weights, means, covarian
   logLvalues <- c()
   
   for (s in 1:length(files)) {
-    fcsFile <- files[s]
-    cat("Analysing",fcsFile,"\n")
-    Y1 <- data.table::fread(file=fcsFile)
+    cat("Analysing",files[s],"\n")
+    Y1 <- data.table::fread(file=files[s])
     Y1 <- as.matrix(Y1)[,usecols]
     
     logLvalues <- c(logLvalues,getLoglikeVals(Y1, weights, means, covariances))
