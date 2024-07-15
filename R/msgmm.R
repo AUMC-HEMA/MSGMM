@@ -1,12 +1,3 @@
-library(Rcpp)
-library(RcppArmadillo)
-library(data.table)
-
-sourceCpp("logstepper_logL_v2.cpp")
-sourceCpp("clusterer_v2.cpp")
-sourceCpp("loglikelihood.cpp")
-sourceCpp("loglikelihoodValues.cpp")
-
 fitMSGMM <- function(samplefiles, 
                      K, 
                      usecols=NULL,

@@ -1,0 +1,11 @@
+Package: MSGMM
+Type: Package
+Title: Multi-sample Gaussian mixture modeling
+Version: 1.0
+Date: 2024-07-15
+Author: Philip Rutten
+Maintainer: TO-DO <yourfault@somewhere.net>
+Description: Multi-sample Gaussian mixture modeling
+License: What license is it under?
+Imports: Rcpp (>= 1.0.11)
+LinkingTo: Rcpp, RcppArmadillo
