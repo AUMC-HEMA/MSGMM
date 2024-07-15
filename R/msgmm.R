@@ -1,19 +1,19 @@
-fitMSGMM <- function(samplefiles, 
+fitMSGMM <- function(files, 
                      K, 
                      usecols=NULL,
-                     init_means=NULL,
-                     subsamples=50,
-                     init_size=1e4,
-                     convergence_threshold=1e-3,
-                     max_iter=50,
+                     init.means=NULL,
+                     init.files=50,
+                     init.size=1e4,
+                     tol=1e-3,
+                     max.iter=50,
                      gamma=1, 
                      lambda=0.01, 
                      pooled=FALSE){ 
   
-  M <- length(samplefiles)
+  M <- length(files)
   
   if (is.null(usecols)){
-    p <- ncol(fread(file=samplefiles[1]))
+    p <- ncol(fread(file=files[1]))
     usecols<-1:p
   } else {
     p <- length(usecols)
@@ -22,41 +22,41 @@ fitMSGMM <- function(samplefiles,
   ##############################################################################
   # Initialize parameters
 
-  if (is.null(init_means)){
+  if (is.null(init.means)){
     
     # Create subsample
     
-    Msub <- subsamples
+    Msub <- init.files
     
-    if (length(samplefiles) < Msub){
-      Msub <- length(samplefiles)
+    if (length(files) < Msub){
+      Msub <- length(files)
     }
     
-    subsample <- matrix(NA, Msub * init_size, p)
+    subsample <- matrix(NA, Msub * init.size, p)
     
     cat("Model",K,"start building subsample from",Msub,"out of",M,"samples.","\n")
     
     for (s in 1:Msub) {
-      fcsFile <- samplefiles[s]
+      fcsFile <- files[s]
       Y1 <- fread(file=fcsFile)
       Y1 <- as.matrix(Y1)[,usecols]
       
-      a <- (s - 1) * init_size + 1
-      b <- a + init_size - 1
+      a <- (s - 1) * init.size + 1
+      b <- a + init.size - 1
       
-      if (nrow(Y1) > init_size){
-        subsample[a:b,] <- Y1[sample(nrow(Y1), init_size, replace=FALSE),]
+      if (nrow(Y1) > init.size){
+        subsample[a:b,] <- Y1[sample(nrow(Y1), init.size, replace=FALSE),]
       } else {
-        subsample[a:b,] <- Y1[sample(nrow(Y1), init_size, replace=TRUE),]
+        subsample[a:b,] <- Y1[sample(nrow(Y1), init.size, replace=TRUE),]
       }
     }
     
-    cat("Subsample size:",Msub * init_size,'\n')
+    cat("Subsample size:",Msub * init.size,'\n')
 
     means <- kmeans(subsample, K, iter.max=1000, algorithm="MacQueen")$centers
     
   } else {
-    means <- init_means
+    means <- init.means
   }
   
   ##############################################################################
@@ -71,9 +71,9 @@ fitMSGMM <- function(samplefiles,
   
   if (pooled==TRUE){
     
-    weights <- rep(1/K, length(samplefiles), K)
+    weights <- rep(1/K, length(files), K)
     
-    while (convergence > convergence_threshold && iter <= max_iter) {
+    while (convergence > tol && iter <= max.iter) {
       cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
       
       # Accumulators
@@ -86,7 +86,7 @@ fitMSGMM <- function(samplefiles,
       N <- 0
       
       for (s in 1:M) {
-        fcsFile <- samplefiles[s]
+        fcsFile <- files[s]
         Y1 <- fread(file=fcsFile)
         Y1 <- as.matrix(Y1)[,usecols]
         
@@ -127,21 +127,21 @@ fitMSGMM <- function(samplefiles,
     
   } else {
     
-    weights <- matrix(1/K, length(samplefiles), K)
+    weights <- matrix(1/K, length(files), K)
     
-    while (convergence > convergence_threshold && iter <= max_iter) {
+    while (convergence > tol && iter <= max.iter) {
       
       cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
       
       # Accumulators
-      A0 <- matrix(0, length(samplefiles), K) # rep(0,K)
+      A0 <- matrix(0, length(files), K) # rep(0,K)
       A1 <- matrix(0, K, p)
       A2 <- matrix(0, K*p, p) 
       
       logL <- 0
       
       for (s in 1:M) {
-        fcsFile <- samplefiles[s]
+        fcsFile <- files[s]
         Y1 <- fread(file=fcsFile)
         Y1 <- as.matrix(Y1)[,usecols] 
         
@@ -202,19 +202,19 @@ predictLabels <- function(X, weights, means, covariances){
 
 ################################################################################
 
-getLoglikelihood <- function(samplefiles, usecols=NULL, weights, means, covariances){
+getLoglikelihood <- function(files, usecols=NULL, weights, means, covariances){
   
-  M <- length(samplefiles)
+  M <- length(files)
   
   if (is.null(usecols)){
-    p <- ncol(fread(file=samplefiles[1]))
+    p <- ncol(fread(file=files[1]))
     usecols<-1:p
   } 
   
   logL <- 0
   
   for (s in 1:M) {
-    fcsFile <- samplefiles[s]
+    fcsFile <- files[s]
     cat("Analysing",fcsFile,"\n")
     Y1 <- fread(file=fcsFile)
     Y1 <- as.matrix(Y1)[,usecols]
@@ -227,19 +227,19 @@ getLoglikelihood <- function(samplefiles, usecols=NULL, weights, means, covarian
 
 ################################################################################
 
-getLoglikelihoodValues <- function(samplefiles, usecols=NULL, weights, means, covariances){
+getLoglikelihoodValues <- function(files, usecols=NULL, weights, means, covariances){
   
-  M <- length(samplefiles)
+  M <- length(files)
   
   if (is.null(usecols)){
-    p <- ncol(fread(file=samplefiles[1]))
+    p <- ncol(fread(file=files[1]))
     usecols<-1:p
   } 
   
   logLvalues <- c()
   
   for (s in 1:M) {
-    fcsFile <- samplefiles[s]
+    fcsFile <- files[s]
     cat("Analysing",fcsFile,"\n")
     Y1 <- fread(file=fcsFile)
     Y1 <- as.matrix(Y1)[,usecols]
