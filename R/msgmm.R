@@ -112,8 +112,7 @@ fitMSGMM <- function(files,
       
       if (iter > 1) {
         if (is.na(logL)){
-          cat("Error: loglikelihood is",logL,'\n')
-          convergence <- 0
+          stop("Log-likelihood is ", logL)
         } else {
           convergence <- abs((logL - logL_old) / logL_old)
         }
@@ -170,8 +169,7 @@ fitMSGMM <- function(files,
       
       if (iter > 1) {
         if (is.na(logL)){
-          cat("Error: loglikelihood is",logL,'\n')
-          convergence <- 0
+          stop("Log-likelihood is ", logL)
         } else {
           convergence <- abs((logL - logL_old) / logL_old)
         }
