@@ -73,7 +73,7 @@ fitMSGMM <- function(samplefiles,
     
     weights <- rep(1/K, length(samplefiles), K)
     
-    while (convergence > convergence_threshold) {
+    while (convergence > convergence_threshold && iter <= max_iter) {
       cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
       
       # Accumulators
@@ -106,13 +106,7 @@ fitMSGMM <- function(samplefiles,
       
       logL_old <- logL
       iter <- iter + 1
-      if (iter > max_iter){
-        convergence <- 0
-        if (is.na(a)){
-          convergence <- 0
-        }
-      }
-      
+    
       # M-step
       weights <- A0 / N
       for (k in 1:K) {
@@ -135,7 +129,7 @@ fitMSGMM <- function(samplefiles,
     
     weights <- matrix(1/K, length(samplefiles), K)
     
-    while (convergence > convergence_threshold) {
+    while (convergence > convergence_threshold && iter <= max_iter) {
       
       cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
       
@@ -171,9 +165,6 @@ fitMSGMM <- function(samplefiles,
       
       logL_old <- logL
       iter <- iter + 1
-      if (iter > max_iter){
-        convergence <- 0
-      }
       
       # M-step
       for (k in 1:K) {
