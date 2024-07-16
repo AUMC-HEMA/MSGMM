@@ -1,9 +1,9 @@
 getSubsample <- function(files, K, usecols, init.files, init.size, seed){
-
+  
   if(!is.null(seed)){
     set.seed(seed)
   }
-
+  
   if (length(files) < init.files){
     cat("init.files is smaller than input files, setting equal to input files \n")
     init.files <- length(files)
@@ -47,14 +47,14 @@ getSubsample <- function(files, K, usecols, init.files, init.size, seed){
 MSGMM <- function(files, K, usecols = NULL, init.means = NULL, init.files = 50,
                   init.size = 1e4, seed = NULL, tol = 1e-3, max.iter = 50,
                   gamma = 1, lambda = 0.01, pooled = FALSE){ 
-
+  
   if (is.null(usecols)){
     p <- ncol(data.table::fread(file=files[1]))
     usecols<-1:p
   } else {
     p <- length(usecols)
   }
-
+  
   # Initialize parameters
   if (is.null(init.means)){
     subsample <- getSubsample(files, K, usecols, init.files, init.size, seed)
@@ -72,84 +72,62 @@ MSGMM <- function(files, K, usecols = NULL, init.means = NULL, init.files = 50,
   # EM loop
   convergence <- 1
   iter <- 1
-  if (pooled==TRUE){
-    while (convergence > tol && iter <= max.iter) {
-      cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
-      # Initialize accumulators
+  while (convergence > tol && iter <= max.iter) {
+    cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
+    # Initialize accumulators
+    logL <- 0
+    N <- 0
+    if (pooled){
       A0 <- rep(0,K) # matrix(0, 1, K) 
       A1 <- matrix(0, K, p)
       A2 <- matrix(0, K*p, p)
-      logL <- 0
-      N <- 0
-      
-      # E-step
-      for (s in 1:length(files)) {
-        Y1 <- data.table::fread(file=files[s])
-        Y1 <- as.matrix(Y1)[,usecols]
-        logL <- logL + logstep(Y1, weights, means, covariances, A0, A1, A2)
-        N <- N + nrow(Y1)
-      }
-      # Assess convergence
-      if (iter > 1) {
-        if (is.na(logL)){
-          stop("Log-likelihood is ", logL)
-        } else {
-          convergence <- abs((logL - logL_old) / logL_old)
-        }
-      }
-      logL_old <- logL
-      iter <- iter + 1
-      # M-step
-      weights <- A0 / N
-      for (k in 1:K) {
-        means[k,] <- A1[k,] / A0[k]
-        covariances[(k-1)*p + c(1:p),] <- A2[(k-1)*p + c(1:p),] / A0[k] - t(tcrossprod(means[k,], means[k,]))
-      }
-      # Prevent non-invertible matrices
-      for (k in 1:K) {
-        covariances[(k-1)*p + c(1:p),] <-
-          (1 - lambda)*covariances[(k-1)*p + c(1:p),] + lambda*sum(diag(covariances[(k-1)*p + c(1:p),]))/p*diag(p)
-      }
-    }
-  } else {
-    
-    while (convergence > tol && iter <= max.iter) {
-      cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
-      # Initialize accumulators
+    } else {
       A0 <- matrix(0, length(files), K) # rep(0,K)
       A1 <- matrix(0, K, p)
       A2 <- matrix(0, K*p, p) 
-      logL <- 0
+    }
+    # E-step
+    for (s in 1:length(files)) {
+      Y1 <- data.table::fread(file=files[s])
+      Y1 <- as.matrix(Y1)[,usecols]
       
-      # E-step
-      for (s in 1:length(files)) {
-        Y1 <- data.table::fread(file=files[s])
-        Y1 <- as.matrix(Y1)[,usecols] 
+      if (pooled){
+        logL <- logL + logstep(Y1, weights, means, covariances, A0, A1, A2)
+        N <- N + nrow(Y1)
+      } else {
         A0_ <- A0[s,]
         logL <- logL + logstep(Y1, weights[s,], means, covariances, A0_, A1, A2)
         A0[s,] <- A0_
         weights[s,] <- A0[s,] / nrow(Y1) 
       }
-      # Assess convergence
-      if (iter > 1) {
-        if (is.na(logL)){
-          stop("Log-likelihood is ", logL)
-        } else {
-          convergence <- abs((logL - logL_old) / logL_old)
-        }
+    }
+    # Assess convergence
+    if (iter > 1) {
+      if (is.na(logL)){
+        stop("Log-likelihood is ", logL)
+      } else {
+        convergence <- abs((logL - logL_old) / logL_old)
       }
-      logL_old <- logL
-      iter <- iter + 1
-      # M-step
+    }
+    # Update parameters (M-step)
+    logL_old <- logL
+    iter <- iter + 1
+    if (pooled){
+      weights <- A0 / N
+      for (k in 1:K) {
+        means[k,] <- A1[k,] / A0[k]
+        covariances[(k-1)*p + c(1:p),] <- A2[(k-1)*p + c(1:p),] / A0[k] - t(tcrossprod(means[k,], means[k,]))
+      }
+    } else {
       for (k in 1:K) {
         means[k,] <- A1[k,] / colSums(A0)[k]
         covariances[(k-1)*p + c(1:p),] <- A2[(k-1)*p + c(1:p),] / colSums(A0)[k] - t(tcrossprod(means[k,], means[k,]))
       }
-      # Prevent non-invertible matrices
-      for (k in 1:K) {
-        covariances[(k-1)*p + c(1:p),] <-
-          (1 - lambda)*covariances[(k-1)*p + c(1:p),] + lambda*sum(diag(covariances[(k-1)*p + c(1:p),]))/p*diag(p)
-      }
+    }
+    # Prevent non-invertible matrices
+    for (k in 1:K) {
+      covariances[(k-1)*p + c(1:p),] <-
+        (1 - lambda)*covariances[(k-1)*p + c(1:p),] + lambda*sum(diag(covariances[(k-1)*p + c(1:p),]))/p*diag(p)
     }
   }
   output <- list("weights" = weights, "means" = means, "covariances" = covariances)
