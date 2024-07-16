@@ -44,7 +44,7 @@ getSubsample <- function(files, K, usecols, init.files, init.size, seed){
 #' @return List of model parameters ("weights", "means", and "covariances")
 #'
 #' @export
-fitMSGMM <- function(files, 
+MSGMM <- function(files, 
                      K, 
                      usecols=NULL,
                      init.means=NULL,
