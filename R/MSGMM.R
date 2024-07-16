@@ -77,7 +77,7 @@ MSGMM <- function(files,
   
   ##############################################################################
   
-  Sigmas <- t(matrix(rep(diag(p)*100, K), p, K*p))*gamma**2
+  covariances <- t(matrix(rep(diag(p)*100, K), p, K*p))*gamma**2
   
   convergence <- 1
   iter <- 1
@@ -105,7 +105,7 @@ MSGMM <- function(files,
         Y1 <- data.table::fread(file=files[s])
         Y1 <- as.matrix(Y1)[,usecols]
         
-        logL <- logL + logstep(Y1, weights, means, Sigmas, A0, A1, A2)
+        logL <- logL + logstep(Y1, weights, means, covariances, A0, A1, A2)
         
         N <- N + nrow(Y1)
       }
@@ -125,13 +125,13 @@ MSGMM <- function(files,
       weights <- A0 / N
       for (k in 1:K) {
         means[k,] <- A1[k,] / A0[k]
-        Sigmas[(k-1)*p + c(1:p),] <- A2[(k-1)*p + c(1:p),] / A0[k] - t(tcrossprod(means[k,], means[k,]))
+        covariances[(k-1)*p + c(1:p),] <- A2[(k-1)*p + c(1:p),] / A0[k] - t(tcrossprod(means[k,], means[k,]))
       }
       
       # Prevent non-invertible matrices
       for (k in 1:K) {
-        Sigmas[(k-1)*p + c(1:p),] <-
-          (1 - lambda)*Sigmas[(k-1)*p + c(1:p),] + lambda*sum(diag(Sigmas[(k-1)*p + c(1:p),]))/p*diag(p)
+        covariances[(k-1)*p + c(1:p),] <-
+          (1 - lambda)*covariances[(k-1)*p + c(1:p),] + lambda*sum(diag(covariances[(k-1)*p + c(1:p),]))/p*diag(p)
       }
     }
   } else {
@@ -155,7 +155,7 @@ MSGMM <- function(files,
         
         A0_ <- A0[s,]
         
-        logL <- logL + logstep(Y1, weights[s,], means, Sigmas, A0_, A1, A2)
+        logL <- logL + logstep(Y1, weights[s,], means, covariances, A0_, A1, A2)
         
         A0[s,] <- A0_
         
@@ -176,17 +176,17 @@ MSGMM <- function(files,
       # M-step
       for (k in 1:K) {
         means[k,] <- A1[k,] / colSums(A0)[k]
-        Sigmas[(k-1)*p + c(1:p),] <- A2[(k-1)*p + c(1:p),] / colSums(A0)[k] - t(tcrossprod(means[k,], means[k,]))
+        covariances[(k-1)*p + c(1:p),] <- A2[(k-1)*p + c(1:p),] / colSums(A0)[k] - t(tcrossprod(means[k,], means[k,]))
       }
       
       # Prevent non-invertible matrices
       for (k in 1:K) {
-        Sigmas[(k-1)*p + c(1:p),] <-
-          (1 - lambda)*Sigmas[(k-1)*p + c(1:p),] + lambda*sum(diag(Sigmas[(k-1)*p + c(1:p),]))/p*diag(p)
+        covariances[(k-1)*p + c(1:p),] <-
+          (1 - lambda)*covariances[(k-1)*p + c(1:p),] + lambda*sum(diag(covariances[(k-1)*p + c(1:p),]))/p*diag(p)
       }
     }
   }
-  output <- list("weights" = weights, "means" = means, "covariances" = Sigmas)
+  output <- list("weights" = weights, "means" = means, "covariances" = covariances)
   class(output) <- "MSGMM"
   return(output)
 }
