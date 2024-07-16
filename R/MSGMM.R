@@ -11,14 +11,13 @@ getSubsample <- function(files, K, usecols, init.files, init.size, seed){
   subsample <- matrix(NA, init.files * init.size, length(usecols))
   cat("Model",K,"start building subsample from",init.files,"out of",length(files),"samples.","\n")
   for (s in 1:init.files) {
-    Y1 <- data.table::fread(file=files[s])
-    Y1 <- as.matrix(Y1)[,usecols]
+    X <- as.matrix(data.table::fread(file=files[s]))[, usecols]
     a <- (s - 1) * init.size + 1
     b <- a + init.size - 1
-    if (nrow(Y1) > init.size){
-      subsample[a:b,] <- Y1[sample(nrow(Y1), init.size, replace=FALSE),]
+    if (nrow(X) > init.size){
+      subsample[a:b,] <- X[sample(nrow(X), init.size, replace=FALSE),]
     } else {
-      subsample[a:b,] <- Y1[sample(nrow(Y1), init.size, replace=TRUE),]
+      subsample[a:b,] <- X[sample(nrow(X), init.size, replace=TRUE),]
     }
   }
   cat("Subsample size:",init.files * init.size,'\n')
@@ -88,17 +87,15 @@ MSGMM <- function(files, K, usecols = NULL, init.means = NULL, init.files = 50,
     }
     # E-step
     for (s in 1:length(files)) {
-      Y1 <- data.table::fread(file=files[s])
-      Y1 <- as.matrix(Y1)[,usecols]
-      
+      X <- as.matrix(data.table::fread(file=files[s]))[, usecols]
       if (pooled){
-        logL <- logL + logstep(Y1, weights, means, covariances, A0, A1, A2)
-        N <- N + nrow(Y1)
+        logL <- logL + logstep(X, weights, means, covariances, A0, A1, A2)
+        N <- N + nrow(X)
       } else {
         A0_ <- A0[s,]
-        logL <- logL + logstep(Y1, weights[s,], means, covariances, A0_, A1, A2)
+        logL <- logL + logstep(X, weights[s,], means, covariances, A0_, A1, A2)
         A0[s,] <- A0_
-        weights[s,] <- A0[s,] / nrow(Y1) 
+        weights[s,] <- A0[s,] / nrow(X) 
       }
     }
     # Assess convergence
@@ -156,9 +153,8 @@ getLoglikelihood <- function(files, usecols = NULL, params){
   logL <- 0
   for (s in 1:length(files)) {
     cat("Analysing",files[s],"\n")
-    Y1 <- data.table::fread(file=files[s])
-    Y1 <- as.matrix(Y1)[,usecols]
-    logL <- logL + getLoglike(Y1, params$weights, params$means, params$covariances)
+    X <- as.matrix(data.table::fread(file=files[s]))[, usecols]
+    logL <- logL + getLoglike(X, params$weights, params$means, params$covariances)
   }
   return(logL)
 }
@@ -167,14 +163,13 @@ getLoglikelihood <- function(files, usecols = NULL, params){
 getLoglikelihoodValues <- function(files, usecols = NULL, params){
   if (is.null(usecols)){
     p <- ncol(data.table::fread(file=files[1]))
-    usecols<-1:p
+    usecols <- 1:p
   } 
   logLvalues <- c()
   for (s in 1:length(files)) {
     cat("Analysing",files[s],"\n")
-    Y1 <- data.table::fread(file=files[s])
-    Y1 <- as.matrix(Y1)[,usecols]
-    logLvalues <- c(logLvalues,getLoglikeVals(Y1, params$weights, 
+    X <- as.matrix(data.table::fread(file=files[s]))[, usecols]
+    logLvalues <- c(logLvalues,getLoglikeVals(X, params$weights, 
                                               params$means, params$covariances))
   }
   return(logLvalues)
