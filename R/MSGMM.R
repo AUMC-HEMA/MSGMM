@@ -134,11 +134,6 @@ MSGMM <- function(files,
           (1 - lambda)*Sigmas[(k-1)*p + c(1:p),] + lambda*sum(diag(Sigmas[(k-1)*p + c(1:p),]))/p*diag(p)
       }
     }
-    
-    d <- list("weights" = weights, "means" = means, "covariances" = Sigmas)
-    
-    return(d)
-    
   } else {
     
     weights <- matrix(1/K, length(files), K)
@@ -190,69 +185,56 @@ MSGMM <- function(files,
           (1 - lambda)*Sigmas[(k-1)*p + c(1:p),] + lambda*sum(diag(Sigmas[(k-1)*p + c(1:p),]))/p*diag(p)
       }
     }
-    
-    d <- list("weights" = weights, "means" = means, "covariances" = Sigmas)
-    
-    return(d)
   }
+  output <- list("weights" = weights, "means" = means, "covariances" = Sigmas)
+  class(output) <- "MSGMM"
+  return(output)
 }
 
 ################################################################################
 
-predictLabels <- function(X, weights, means, covariances){
-  
+predictLabels <- function(X, params){
+  weights <- params$weights
   if (is.null(dim(weights))==FALSE){
     if (dim(weights)[1] > 1){
       weights <- colSums(weights)/dim(weights)[1]
     }
   }
-  
-  dataClusters <- getClusters(X, weights, means, covariances)
-  
+  dataClusters <- getClusters(X, weights, params$means, params$covariances)
   return(dataClusters)
 }
 
 ################################################################################
 
-getLoglikelihood <- function(files, usecols=NULL, weights, means, covariances){
-
+getLoglikelihood <- function(files, usecols=NULL, params){
   if (is.null(usecols)){
     p <- ncol(data.table::fread(file=files[1]))
     usecols<-1:p
   } 
-  
   logL <- 0
-  
   for (s in 1:length(files)) {
     cat("Analysing",files[s],"\n")
     Y1 <- data.table::fread(file=files[s])
     Y1 <- as.matrix(Y1)[,usecols]
-    
-    logL <- logL + getLoglike(Y1, weights, means, covariances)
+    logL <- logL + getLoglike(Y1, params$weights, params$means, params$covariances)
   }
-  
   return(logL)
 }
 
 ################################################################################
 
-getLoglikelihoodValues <- function(files, usecols=NULL, weights, means, covariances){
-
+getLoglikelihoodValues <- function(files, usecols=NULL, params){
   if (is.null(usecols)){
     p <- ncol(data.table::fread(file=files[1]))
     usecols<-1:p
   } 
-  
   logLvalues <- c()
-  
   for (s in 1:length(files)) {
     cat("Analysing",files[s],"\n")
     Y1 <- data.table::fread(file=files[s])
     Y1 <- as.matrix(Y1)[,usecols]
-    
-    logLvalues <- c(logLvalues,getLoglikeVals(Y1, weights, means, covariances))
+    logLvalues <- c(logLvalues,getLoglikeVals(Y1, params$weights, 
+                                              params$means, params$covariances))
   }
-  
   return(logLvalues)
 }
-
