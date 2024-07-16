@@ -44,18 +44,9 @@ getSubsample <- function(files, K, usecols, init.files, init.size, seed){
 #' @return List of model parameters ("weights", "means", and "covariances")
 #'
 #' @export
-MSGMM <- function(files, 
-                     K, 
-                     usecols=NULL,
-                     init.means=NULL,
-                     init.files=50,
-                     init.size=1e4,
-                     seed=NULL,
-                     tol=1e-3,
-                     max.iter=50,
-                     gamma=1, 
-                     lambda=0.01, 
-                     pooled=FALSE){ 
+MSGMM <- function(files, K, usecols = NULL, init.means = NULL, init.files = 50,
+                  init.size = 1e4, seed = NULL, tol = 1e-3, max.iter = 50,
+                  gamma = 1, lambda = 0.01, pooled = FALSE){ 
 
   if (is.null(usecols)){
     p <- ncol(data.table::fread(file=files[1]))
@@ -64,52 +55,41 @@ MSGMM <- function(files,
     p <- length(usecols)
   }
 
-  ##############################################################################
   # Initialize parameters
-
   if (is.null(init.means)){
     subsample <- getSubsample(files, K, usecols, init.files, init.size, seed)
     means <- stats::kmeans(subsample, K, iter.max=1000, algorithm="MacQueen")$centers
-    
   } else {
     means <- init.means
   }
-  
-  ##############################################################################
-  
+  if (pooled == TRUE){
+    weights <- rep(1/K, length(files), K)
+  } else {
+    weights <- matrix(1/K, length(files), K)
+  }
   covariances <- t(matrix(rep(diag(p)*100, K), p, K*p))*gamma**2
   
+  # EM loop
   convergence <- 1
   iter <- 1
-  
-  ##############################################################################
-  # EM loop
-  
   if (pooled==TRUE){
-    
-    weights <- rep(1/K, length(files), K)
-    
     while (convergence > tol && iter <= max.iter) {
       cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
-      
-      # Accumulators
+      # Initialize accumulators
       A0 <- rep(0,K) # matrix(0, 1, K) 
       A1 <- matrix(0, K, p)
       A2 <- matrix(0, K*p, p)
-      
       logL <- 0
-      
       N <- 0
       
+      # E-step
       for (s in 1:length(files)) {
         Y1 <- data.table::fread(file=files[s])
         Y1 <- as.matrix(Y1)[,usecols]
-        
         logL <- logL + logstep(Y1, weights, means, covariances, A0, A1, A2)
-        
         N <- N + nrow(Y1)
       }
-      
+      # Assess convergence
       if (iter > 1) {
         if (is.na(logL)){
           stop("Log-likelihood is ", logL)
@@ -117,17 +97,14 @@ MSGMM <- function(files,
           convergence <- abs((logL - logL_old) / logL_old)
         }
       }
-      
       logL_old <- logL
       iter <- iter + 1
-    
       # M-step
       weights <- A0 / N
       for (k in 1:K) {
         means[k,] <- A1[k,] / A0[k]
         covariances[(k-1)*p + c(1:p),] <- A2[(k-1)*p + c(1:p),] / A0[k] - t(tcrossprod(means[k,], means[k,]))
       }
-      
       # Prevent non-invertible matrices
       for (k in 1:K) {
         covariances[(k-1)*p + c(1:p),] <-
@@ -136,32 +113,24 @@ MSGMM <- function(files,
     }
   } else {
     
-    weights <- matrix(1/K, length(files), K)
-    
     while (convergence > tol && iter <= max.iter) {
-      
       cat("Model",K,"iteration",iter,format(Sys.time(),usetz=TRUE),"\n")
-      
-      # Accumulators
+      # Initialize accumulators
       A0 <- matrix(0, length(files), K) # rep(0,K)
       A1 <- matrix(0, K, p)
       A2 <- matrix(0, K*p, p) 
-      
       logL <- 0
       
+      # E-step
       for (s in 1:length(files)) {
         Y1 <- data.table::fread(file=files[s])
         Y1 <- as.matrix(Y1)[,usecols] 
-        
         A0_ <- A0[s,]
-        
         logL <- logL + logstep(Y1, weights[s,], means, covariances, A0_, A1, A2)
-        
         A0[s,] <- A0_
-        
         weights[s,] <- A0[s,] / nrow(Y1) 
       }
-      
+      # Assess convergence
       if (iter > 1) {
         if (is.na(logL)){
           stop("Log-likelihood is ", logL)
@@ -169,16 +138,13 @@ MSGMM <- function(files,
           convergence <- abs((logL - logL_old) / logL_old)
         }
       }
-      
       logL_old <- logL
       iter <- iter + 1
-      
       # M-step
       for (k in 1:K) {
         means[k,] <- A1[k,] / colSums(A0)[k]
         covariances[(k-1)*p + c(1:p),] <- A2[(k-1)*p + c(1:p),] / colSums(A0)[k] - t(tcrossprod(means[k,], means[k,]))
       }
-      
       # Prevent non-invertible matrices
       for (k in 1:K) {
         covariances[(k-1)*p + c(1:p),] <-
@@ -191,7 +157,6 @@ MSGMM <- function(files,
   return(output)
 }
 
-################################################################################
 
 predictLabels <- function(X, params){
   weights <- params$weights
@@ -204,9 +169,8 @@ predictLabels <- function(X, params){
   return(dataClusters)
 }
 
-################################################################################
 
-getLoglikelihood <- function(files, usecols=NULL, params){
+getLoglikelihood <- function(files, usecols = NULL, params){
   if (is.null(usecols)){
     p <- ncol(data.table::fread(file=files[1]))
     usecols<-1:p
@@ -221,9 +185,8 @@ getLoglikelihood <- function(files, usecols=NULL, params){
   return(logL)
 }
 
-################################################################################
 
-getLoglikelihoodValues <- function(files, usecols=NULL, params){
+getLoglikelihoodValues <- function(files, usecols = NULL, params){
   if (is.null(usecols)){
     p <- ncol(data.table::fread(file=files[1]))
     usecols<-1:p
