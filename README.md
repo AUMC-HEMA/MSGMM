@@ -11,6 +11,7 @@ MSGMM allows for efficiently fitting a Gaussian mixture models (GMM) to multiple
 ```r
 devtools::install_github("AUMC-HEMA/MSGMM")
 ```
+Note that MSGMM also requires installing [RTools](https://cran.r-project.org/bin/windows/Rtools/). 
 
 ## Citation
 
