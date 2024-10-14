@@ -88,9 +88,9 @@ MSGMM <- function(files, K, usecols = NULL, init.means = NULL, init.files = 50,
     # E-step
     for (s in 1:length(files)) {
       X <- as.matrix(data.table::fread(file=files[s]))[, usecols]
+      N <- N + nrow(X)
       if (pooled){
         logL <- logL + logstep(X, weights, means, covariances, A0, A1, A2)
-        N <- N + nrow(X)
       } else {
         A0_ <- A0[s,]
         logL <- logL + logstep(X, weights[s,], means, covariances, A0_, A1, A2)
@@ -127,7 +127,8 @@ MSGMM <- function(files, K, usecols = NULL, init.means = NULL, init.files = 50,
         (1 - lambda)*covariances[(k-1)*p + c(1:p),] + lambda*sum(diag(covariances[(k-1)*p + c(1:p),]))/p*diag(p)
     }
   }
-  output <- list("weights" = weights, "means" = means, "covariances" = covariances)
+  output <- list("weights" = weights, "means" = means, "covariances" = covariances,
+                 "n" = N)
   class(output) <- "MSGMM"
   return(output)
 }
