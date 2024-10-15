@@ -9,3 +9,4 @@ Description: Multi-sample Gaussian mixture modeling
 License: What license is it under?
 Imports: Rcpp (>= 1.0.11)
 LinkingTo: Rcpp, RcppArmadillo
+RoxygenNote: 7.3.2

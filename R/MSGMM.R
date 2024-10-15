@@ -181,7 +181,7 @@ getLoglikelihoodValues <- function(files, usecols = NULL, params){
   return(logLvalues)
 }
 
-#' Fit multi-sample Gaussian Mixture Model (MSGMM)
+#' Calculate the Bayesian Information Criterion (BIC)
 #' 
 #' @param logL Log-likelihood value of fitted model
 #' @param params MSGMM model parameter output
