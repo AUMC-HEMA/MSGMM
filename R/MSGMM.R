@@ -180,3 +180,28 @@ getLoglikelihoodValues <- function(files, usecols = NULL, params){
   }
   return(logLvalues)
 }
+
+#' Fit multi-sample Gaussian Mixture Model (MSGMM)
+#' 
+#' @param logL Log-likelihood value of fitted model
+#' @param params MSGMM model parameter output
+#'
+#' @return BIC score
+#' 
+#' @seealso \code{\link{getLoglikelihood}}
+#'
+#' @export
+calculateBIC <- function(logL, params){
+  n <- params$metadata$n
+  K <- params$metadata$K
+  p <- params$metadata$p
+  s <- length(params$metadata$files)
+  pooled <- params$metadata$pooled
+  if (pooled){
+    nParams <- (K * p) + K * (p * (p + 1) / 2) + (K - 1)
+  } else {
+    nParams <- (K * p) + K * (p * (p + 1) / 2) + (K - 1) * s
+  }
+  BIC <- -2 * logL + nParams * log(n)
+  return(BIC)
+}
