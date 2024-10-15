@@ -128,7 +128,7 @@ MSGMM <- function(files, K, usecols = NULL, init.means = NULL, init.files = 50,
     }
   }
   output <- list("weights" = weights, "means" = means, "covariances" = covariances,
-                 "n" = N, "pooled" = pooled)
+                 "n" = N, "p" = p, "pooled" = pooled)
   class(output) <- "MSGMM"
   return(output)
 }
