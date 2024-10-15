@@ -127,8 +127,13 @@ MSGMM <- function(files, K, usecols = NULL, init.means = NULL, init.files = 50,
         (1 - lambda)*covariances[(k-1)*p + c(1:p),] + lambda*sum(diag(covariances[(k-1)*p + c(1:p),]))/p*diag(p)
     }
   }
+  metadata <- list("files" = files, "K" = K, "usecols" = usecols, 
+                   "init.means" = init.means, "init.files" = init.files,
+                   "init.size" = init.size, "seed" = seed, "tol" = tol, 
+                   "max.iter" = max.iter, "gamma" = gamma, "lambda" = lambda, 
+                   "pooled" = pooled, "n" = n, "p" = p)
   output <- list("weights" = weights, "means" = means, "covariances" = covariances,
-                 "n" = N, "p" = p, "pooled" = pooled)
+                 "metadata" = metadata)
   class(output) <- "MSGMM"
   return(output)
 }
