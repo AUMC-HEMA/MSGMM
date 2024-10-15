@@ -139,6 +139,14 @@ MSGMM <- function(files, K, usecols = NULL, init.means = NULL, init.files = 50,
 }
 
 
+#' Assign cluster labels to new data
+#' 
+#' @param X Numeric matrix
+#' @param params MSGMM model parameter output
+#'
+#' @return Cluster labels
+#' 
+#' @export
 predictLabels <- function(X, params){
   weights <- params$weights
   if (is.null(dim(weights))==FALSE){
@@ -151,6 +159,17 @@ predictLabels <- function(X, params){
 }
 
 
+#' Calculate log-likelihood
+#' 
+#' @param files Character vector with CSV filenames
+#' @param usecols Vector specifying the variables (columns) to use
+#' @param params MSGMM model parameter output
+#'
+#' @return Log-likelihood values
+#' 
+#' @seealso \code{\link{getLoglikelihoodValues}}
+#'
+#' @export
 getLoglikelihood <- function(files, usecols = NULL, params){
   if (is.null(usecols)){
     p <- ncol(data.table::fread(file=files[1]))
@@ -166,6 +185,17 @@ getLoglikelihood <- function(files, usecols = NULL, params){
 }
 
 
+#' Calculate log-likelihood values
+#' 
+#' @param files Character vector with CSV filenames
+#' @param usecols Vector specifying the variables (columns) to use
+#' @param params MSGMM model parameter output
+#'
+#' @return Vector with log-likelihood values
+#' 
+#' @seealso \code{\link{getLoglikelihood}}
+#'
+#' @export
 getLoglikelihoodValues <- function(files, usecols = NULL, params){
   if (is.null(usecols)){
     p <- ncol(data.table::fread(file=files[1]))
@@ -180,6 +210,7 @@ getLoglikelihoodValues <- function(files, usecols = NULL, params){
   }
   return(logLvalues)
 }
+
 
 #' Calculate the Bayesian Information Criterion (BIC)
 #' 
