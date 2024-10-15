@@ -131,7 +131,7 @@ MSGMM <- function(files, K, usecols = NULL, init.means = NULL, init.files = 50,
                    "init.means" = init.means, "init.files" = init.files,
                    "init.size" = init.size, "seed" = seed, "tol" = tol, 
                    "max.iter" = max.iter, "gamma" = gamma, "lambda" = lambda, 
-                   "pooled" = pooled, "n" = n, "p" = p)
+                   "pooled" = pooled, "n" = N, "p" = p)
   output <- list("weights" = weights, "means" = means, "covariances" = covariances,
                  "metadata" = metadata)
   class(output) <- "MSGMM"
