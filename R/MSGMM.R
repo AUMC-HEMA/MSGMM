@@ -174,12 +174,23 @@ getLoglikelihood <- function(files, usecols = NULL, params){
   if (is.null(usecols)){
     p <- ncol(data.table::fread(file=files[1]))
     usecols<-1:p
-  } 
+  }
   logL <- 0
   for (s in 1:length(files)) {
     cat("Analysing",files[s],"\n")
     X <- as.matrix(data.table::fread(file=files[s]))[, usecols]
-    logL <- logL + getLoglike(X, params$weights, params$means, params$covariances)
+    if (params$metadata$pooled){
+      logL <- logL + getLoglike(X, params$weights, params$means, params$covariances)
+    } else {
+      if (sum(basename(model_params$metadata$files) == basename(files)) != length(model_params$metadata$files)){
+        message("Warning: input files different from files used in fit!\nSample-specific weights are invalid, defaulting to GMM...")
+        # Average the model weights
+        weights <- colMeans(model_params$weights)
+        logL <- logL + getLoglike(X, weights, params$means, params$covariances)
+      } else {
+        logL <- logL + getLoglike(X, params$weights[s,], params$means, params$covariances)
+      }
+    }
   }
   return(logL)
 }
