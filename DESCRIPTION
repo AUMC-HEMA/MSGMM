@@ -10,3 +10,5 @@ License: Apache 2.0
 Imports: Rcpp (>= 1.0.11)
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.3.2
+URL: https://AUMC-HEMA.github.io/MSGMM, https://github.com/AUMC-HEMA/MSGMM
+BugReports: https://github.com/AUMC-HEMA/MSGMM/issues
